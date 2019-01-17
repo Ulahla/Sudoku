@@ -1,4 +1,6 @@
-package Sudoku;
+import java.awt.*;
+import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * User: SarahB
@@ -10,27 +12,72 @@ package Sudoku;
 public class Sudoku {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
 
+  private Map<Point, int[]> possibleValues = new LinkedHashMap<>();
+
+  private int   DIMENSION;
+  private int[] values;
+
+
+
   //--------------------------------------------------------------------------------------------------------------------------------------- endregion Variables
   //------------------------------------------------------------------------------------------------------------------------------------- region Initialization
 
   public static int[][] generateSudoko(int dimension, Level level) {
-    int[][] sudoku = new int[dimension][dimension];
+    @SuppressWarnings("SpellCheckingInspection")
+    Sudoku sudoku = new Sudoku(dimension);
+
+    return sudoku.generateSudokuToSolve(level);
+  }
+
+  private Sudoku(int dimension) {
+    DIMENSION = dimension;
+    values    = IntStream.range(1, DIMENSION + 1).toArray();
+    for (int x = 0; x < DIMENSION; x++) {
+      for (int y = 0; y < DIMENSION; y++) {
+        Point point = new Point(x, y);
+       // System.out.println(point.x + "," + point.y);
+        possibleValues.put(point, values.clone());
+      }
+    }
+
+    // print keys
+    for (Map.Entry entry : possibleValues.entrySet()) {
+      System.out.println(entry.getKey());
+    }
+    
+    //printMap(possibleValues);
+  }
+
+  private int[][] generateSudokuToSolve(Level level) {
+    @SuppressWarnings("SpellCheckingInspection")
+    int[][] sudokuToSolve = new int[DIMENSION][DIMENSION];
 
     switch(level) {
       case EASY:
       case MIDDLE:
       case HARD:
       default:
-        getEasyExample(sudoku);
-        return sudoku;
+        sudokuToSolve = getEasyExample(sudokuToSolve);
+        return sudokuToSolve;
     }
-
-//    return sudoku;
   }
-
 
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization
   //-------------------------------------------------------------------------------------------------------------------------------------------- region Methods
+
+  private void solveSudoku(int[][] sudokuToSolve) {
+
+
+  }
+
+  private void printMap(Map<Point, int[]> possibleValues) {
+    // print the map
+    for (Map.Entry<Point, int[]> entry : possibleValues.entrySet()) {
+      Arrays.stream(entry.getValue()).forEach(System.out::print);
+      System.out.println();
+      //System.out.println(Arrays.stream(entry.getValue()).count());
+    }
+  }
 
   //------------------------------------------------------------------------------------------------------------------------------------ region Private Methods
   private static int[][] getEasyExample(int[][] sudoku) {
@@ -75,7 +122,7 @@ public class Sudoku {
     return sudoku;
   }
 
-  public static int[][] getEasySolution() {
+  static int[][] getEasySolution() {
     int[][] solution = new int[9][9];
 
     getEasyExample(solution);

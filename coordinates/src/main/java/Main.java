@@ -1,4 +1,3 @@
-package Sudoku;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -12,6 +11,7 @@ import java.util.stream.IntStream;
  * Date: 17.01.2019
  * Time: 11:16
  * <p>
+ *
  * Copyright LucaNet AG
  */
 public class Main {
@@ -61,8 +61,8 @@ public class Main {
 //    printSolution(solution);
 
 
-//    printSolution(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
-    printSolution(Sudoku.getEasySolution());
+    printSolution(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
+    //printSolution(Sudoku.getEasySolution());
   }
 
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization  
