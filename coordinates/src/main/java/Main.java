@@ -1,3 +1,5 @@
+package Sudoku;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Arrays;
@@ -10,7 +12,7 @@ import java.util.stream.IntStream;
  * Date: 17.01.2019
  * Time: 11:16
  * <p>
- * Copyright Fari
+ * Copyright LucaNet AG
  */
 public class Main {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
@@ -44,13 +46,10 @@ public class Main {
 //    Arrays.stream(possibleValues.get(new Point(8, 8))).forEach(System.out::print);
 
     // print the map
-    for (Map.Entry<Point, int[]> entry : possibleValues.entrySet()) {
-      Arrays.stream(entry.getValue()).forEach(System.out::print);
-      System.out.println(Arrays.stream(entry.getValue()).count());
-//      System.out.println();
-    }
-
-    System.err.println();
+//    for (Map.Entry<Point, int[]> entry : possibleValues.entrySet()) {
+//      Arrays.stream(entry.getValue()).forEach(System.out::print);
+//      System.out.println(Arrays.stream(entry.getValue()).count());
+//    }
 
 //    System.out.println(new Point(1,1).getX());
 
@@ -59,7 +58,11 @@ public class Main {
 //    System.out.println("Keys: " + possibleValues.keySet().size());
 //    System.out.println("ValueSize: " + possibleValues.entrySet().stream().filter(key -> key.getValue() != null).count());//.forEach(key -> {if (possibleValues.get(key) != null){counter++;}}));//.size());
 
-    printSolution(solution);
+//    printSolution(solution);
+
+
+//    printSolution(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
+    printSolution(Sudoku.getEasySolution());
   }
 
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization  
