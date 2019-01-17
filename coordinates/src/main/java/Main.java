@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
  * Date: 17.01.2019
  * Time: 11:16
  * <p>
- * Copyright LucaNet AG
+ * Copyright Fari
  */
 public class Main {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
