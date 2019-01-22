@@ -62,7 +62,7 @@ public class Main {
 
 
     printSolution(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
-    //printSolution(Sudoku.getEasySolution());
+   // printSolution(Sudoku.getEasySolution());
   }
 
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization  
@@ -71,6 +71,7 @@ public class Main {
   //------------------------------------------------------------------------------------------------------------------------------------ region Private Methods
 
   private static void printSolution(int[][] solution) {
+//    System.out.println("Solution:");
     System.out.println(" -----------------------");
     for (int x = 0; x < DIMENSION; x++) {
       System.out.print("| ");

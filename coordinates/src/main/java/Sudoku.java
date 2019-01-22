@@ -9,6 +9,7 @@ import java.util.stream.IntStream;
  * <p>
  * Copyright Fari
  */
+@SuppressWarnings("SpellCheckingInspection")
 public class Sudoku {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
 
@@ -23,7 +24,6 @@ public class Sudoku {
   //------------------------------------------------------------------------------------------------------------------------------------- region Initialization
 
   public static int[][] generateSudoko(int dimension, Level level) {
-    @SuppressWarnings("SpellCheckingInspection")
     Sudoku sudoku = new Sudoku(dimension);
 
     return sudoku.generateSudokuToSolve(level);
@@ -40,10 +40,10 @@ public class Sudoku {
       }
     }
 
-    // print keys
-    for (Map.Entry entry : possibleValues.entrySet()) {
-      System.out.println(entry.getKey());
-    }
+//    // print keys
+//    for (Map.Entry entry : possibleValues.entrySet()) {
+//      System.out.println(entry.getKey());
+//    }
     
     //printMap(possibleValues);
   }
@@ -57,6 +57,7 @@ public class Sudoku {
       case MIDDLE:
       case HARD:
       default:
+        System.out.println("Sudoku to solve:");
         sudokuToSolve = getEasyExample(sudokuToSolve);
         return sudokuToSolve;
     }
@@ -66,8 +67,14 @@ public class Sudoku {
   //-------------------------------------------------------------------------------------------------------------------------------------------- region Methods
 
   private void solveSudoku(int[][] sudokuToSolve) {
+  // delete all exiting numbers in possibleValues
+    deleteAllKnownValues(sudokuToSolve);
 
+  }
 
+  private void deleteAllKnownValues(int[][] sudokuToSolve) {
+    // get all keys, for that the value is not 0!
+    // delete them in the map.
   }
 
   private void printMap(Map<Point, int[]> possibleValues) {
@@ -81,7 +88,6 @@ public class Sudoku {
 
   //------------------------------------------------------------------------------------------------------------------------------------ region Private Methods
   private static int[][] getEasyExample(int[][] sudoku) {
-    System.out.println("Sudoku to solve:");
     sudoku[0][7] = 6;
 
     sudoku[1][1] = 5;
