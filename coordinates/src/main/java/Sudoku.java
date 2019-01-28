@@ -1,5 +1,9 @@
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -13,11 +17,12 @@ import java.util.stream.IntStream;
 public class Sudoku {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
 
-  private Map<Point, int[]> possibleValues = new LinkedHashMap<>();
+  private Map<Point, Set<Integer>> possibleValues = new LinkedHashMap<>();
 
-  private int   DIMENSION;
-  private int[] values;
+  private int          DIMENSION;
+  private Set<Integer> values =  (IntStream.range(1, DIMENSION + 1).boxed().collect(Collectors.toSet()));;
 
+  int[][] sudokuToSolve;
 
 
   //--------------------------------------------------------------------------------------------------------------------------------------- endregion Variables
@@ -30,13 +35,14 @@ public class Sudoku {
   }
 
   private Sudoku(int dimension) {
-    DIMENSION = dimension;
-    values    = IntStream.range(1, DIMENSION + 1).toArray();
+    DIMENSION     = dimension;
+    sudokuToSolve = new int[DIMENSION][DIMENSION];
+//    values.addAll(IntStream.range(1, DIMENSION + 1));
     for (int x = 0; x < DIMENSION; x++) {
       for (int y = 0; y < DIMENSION; y++) {
         Point point = new Point(x, y);
        // System.out.println(point.x + "," + point.y);
-        possibleValues.put(point, values.clone());
+        possibleValues.put(point, values);
       }
     }
 
@@ -44,13 +50,11 @@ public class Sudoku {
 //    for (Map.Entry entry : possibleValues.entrySet()) {
 //      System.out.println(entry.getKey());
 //    }
-    
+
     //printMap(possibleValues);
   }
 
   private int[][] generateSudokuToSolve(Level level) {
-    @SuppressWarnings("SpellCheckingInspection")
-    int[][] sudokuToSolve = new int[DIMENSION][DIMENSION];
 
     switch(level) {
       case EASY:
@@ -59,6 +63,10 @@ public class Sudoku {
       default:
         System.out.println("Sudoku to solve:");
         sudokuToSolve = getEasyExample(sudokuToSolve);
+        solveSudoku(sudokuToSolve);
+        //checkForValueInColumn(new Point(1,5), 1);
+//        System.out.println(possibleValues.entrySet());
+//        System.out.println(possibleValues.size());
         return sudokuToSolve;
     }
   }
@@ -69,12 +77,47 @@ public class Sudoku {
   private void solveSudoku(int[][] sudokuToSolve) {
   // delete all exiting numbers in possibleValues
     deleteAllKnownValues(sudokuToSolve);
+//    deleteValueInColumn(int column, int value);
+//    deleteValueInRow(int row, int value);
+
+  }
+
+  private void checkForValueInColumn(Point coordinate, int value) {
+    int column = (int) coordinate.getY();
+    for (int x = 0; x < DIMENSION; x++) {
+      if (sudokuToSolve[x][column] == value) {
+        System.out.println("Found value + " + value + "in column: " + column);
+        deleteValueInColumn(column, value);
+      }
+      //possibleValues.re(new Point(x, column))
+    }
+  }
+
+  private void deleteValueInColumn(int column, int value) {
+    for (int x = 0; x < DIMENSION; x++) {
+      possibleValues.get(new Point(x, column)).remove(value);
+    }
+  }
+
+  private void deleteValueInRow(Point coordinate, int value) {
+    int row = (int) coordinate.getX();
+  }
+
+  private void deleteValueInSquare(Point coordinate, int value) {
 
   }
 
   private void deleteAllKnownValues(int[][] sudokuToSolve) {
     // get all keys, for that the value is not 0!
     // delete them in the map.
+    for (int x = 0; x < sudokuToSolve.length; x++) {
+      for (int y = 0; y < sudokuToSolve[0].length; y++) {
+        int value = sudokuToSolve[x][y];
+        if (value != 0) {
+          possibleValues.remove(new Point(x,y));
+        }
+      }
+    }
   }
 
   private void printMap(Map<Point, int[]> possibleValues) {
