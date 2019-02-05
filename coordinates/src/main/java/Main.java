@@ -1,7 +1,5 @@
 
 import java.awt.*;
-import java.awt.geom.Point2D;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -58,11 +56,11 @@ public class Main {
 //    System.out.println("Keys: " + possibleValues.keySet().size());
 //    System.out.println("ValueSize: " + possibleValues.entrySet().stream().filter(key -> key.getValue() != null).count());//.forEach(key -> {if (possibleValues.get(key) != null){counter++;}}));//.size());
 
-//    printSolution(solution);
+//    printSudoku(solution);
 
 
-    printSolution(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
-   // printSolution(Sudoku.getEasySolution());
+    printSudoku(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
+   // printSudoku(Sudoku.getEasySolution());
   }
 
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization  
@@ -70,13 +68,13 @@ public class Main {
 
   //------------------------------------------------------------------------------------------------------------------------------------ region Private Methods
 
-  private static void printSolution(int[][] solution) {
+  static void printSudoku(int[][] sudoku) {
 //    System.out.println("Solution:");
     System.out.println(" -----------------------");
     for (int x = 0; x < DIMENSION; x++) {
       System.out.print("| ");
       for (int y = 0; y < DIMENSION; y++) {
-        System.out.print(solution[x][y] + " ");
+        System.out.print(sudoku[x][y] + " ");
         if ((y+1) % 3 == 0) {
           System.out.print("| ");
         }
