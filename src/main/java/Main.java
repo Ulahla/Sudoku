@@ -59,7 +59,7 @@ public class Main {
 //    printSudoku(solution);
 
 
-    printSudoku(Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY));
+    Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY);
    // printSudoku(Sudoku.getEasySolution());
   }
 

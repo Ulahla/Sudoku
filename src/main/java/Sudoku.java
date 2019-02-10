@@ -1,7 +1,6 @@
 import java.awt.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -16,7 +15,7 @@ import java.util.stream.IntStream;
 public class Sudoku {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
 
-  private Map<Point, Set<Integer>> possibleValues = new LinkedHashMap<>();
+  private Map<Point, Set<Integer>> possibleValues = new ConcurrentHashMap<>();
 
   private int DIMENSION;
   private int FACTOR;
@@ -58,7 +57,7 @@ public class Sudoku {
         this.sudokuToSolve = getEasyExample(sudokuToSolve);
         Main.printSudoku(sudokuToSolve);
 //        this.sudokuToSolve = getEasyExampleSecond(sudokuToSolve);
-        solveSudoku(this.sudokuToSolve);
+        solveSudokuTrivial(this.sudokuToSolve);
         //checkForValueInColumn(new Point(1,5), 1);
 //        System.out.println(possibleValues.entrySet());
 //        System.out.println(possibleValues.size());
@@ -69,28 +68,37 @@ public class Sudoku {
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization
   //-------------------------------------------------------------------------------------------------------------------------------------------- region Methods
 
-  private void solveSudoku(int[][] sudokuToSolve) {
+//  private void solveSudokuSecond(int[][] sudokuToSolve) {
+//    deleteAllInitiallyKnownValues(sudokuToSolve);
+//    int counter = 0;
+//    while(possibleValues.size() > 0 || counter > 50) {
+//      setKnownValues(sudokuToSolve);
+//    }
+//  }
+
+  private void solveSudokuTrivial(int[][] sudokuToSolve) {
 
     // delete all exiting numbers in possibleValues
     deleteAllInitiallyKnownValues(sudokuToSolve);    // TODO: 04/02/19 works
 
+    long start = System.currentTimeMillis();
     int counter = 0;
-    while(possibleValues.size() > 0){
-      setKnownValues(sudokuToSolve);
-      // print possible Values
-//      printPossibleValues(possibleValues);
-      counter++;
-//      printPossibleValues(possibleValues);
-//      deleteAllInitiallyKnownValues(sudokuToSolve);
-    }
-    // print possibleValues
-//    printPossibleValues(possibleValues);
-    System.out.println("It took " + counter + " iterations, to solve this sudoku.");
-    System.out.println("My Solution");
-//    Main.printSudoku(sudokuToSolve);
-//    System.out.println("Actual Solution");
-//    getEasySolution();
 
+    while(possibleValues.size() > 0 && counter < 100){
+      setKnownValues(sudokuToSolve);
+      counter ++;
+    }
+
+    if (counter >= 50) {
+      System.out.println("Sorry - could not solve Sudoku");
+    }
+    else {
+      long timespent = (System.currentTimeMillis() - start);
+      System.out.println("Spent " +  timespent + " milliseconds to solve");
+
+      System.out.println("My Solution");
+      Main.printSudoku(this.sudokuToSolve);
+    }
   }
 
   private void checkForValueInColumn(Point coordinate, int value) {
@@ -126,6 +134,20 @@ public class Sudoku {
     deleteValueInRow(coordinate, value);
     deleteValueInSquare(coordinate, value);
   }
+
+  private void setKnownValues(Map<Point, Set<Integer>> possibleValues) {
+    for (Map.Entry<Point, Set<Integer>> possibleValue : possibleValues.entrySet()) {
+      Point coordinate = possibleValue.getKey();
+      if (possibleValues.get(coordinate).size() == 1) {
+        int value = possibleValues.get(coordinate).iterator().next();
+        sudokuToSolve[coordinate.x][coordinate.y] = value;
+        removeValue(coordinate, value);
+        this.possibleValues.remove(possibleValue.getKey());
+      }
+    }
+  }
+
+
 
   private void setKnownValues(int[][] sudokuToSolve) {
     for (int y = 0; y < sudokuToSolve.length; y++) {

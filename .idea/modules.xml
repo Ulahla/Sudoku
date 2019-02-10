@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/coordinates.iml" filepath="$PROJECT_DIR$/coordinates.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Sudoku_solver.iml" filepath="$PROJECT_DIR$/.idea/modules/Sudoku_solver.iml" />
     </modules>
   </component>
 </project>
