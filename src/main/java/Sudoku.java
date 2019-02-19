@@ -1,3 +1,5 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,16 +22,23 @@ public class Sudoku {
   private int DIMENSION;
   private int FACTOR;
 
+  private final int MAX_NUMBER_OF_ATEMPTS = 5000;
+
   int[][] sudokuToSolve;
 
+  public static Sudoku sudoku;
 
   //--------------------------------------------------------------------------------------------------------------------------------------- endregion Variables
   //------------------------------------------------------------------------------------------------------------------------------------- region Initialization
 
-  public static int[][] generateSudoko(int dimension, Level level) {
-    Sudoku sudoku = new Sudoku(dimension);
-
+  @NotNull
+  public static int[][] generateSudoku(int dimension, Level level) {
+    sudoku = new Sudoku(dimension);
     return sudoku.generateSudokuToSolve(level);
+  }
+
+  public static void solveSudoku(int[][] sudokuToSolve) {
+    sudoku.solveSudokuTrivialArray(sudokuToSolve);
   }
 
   private Sudoku(int dimension) {
@@ -46,21 +55,16 @@ public class Sudoku {
     }
   }
 
+  @NotNull
   private int[][] generateSudokuToSolve(Level level) {
 
     switch(level) {
       case EASY:
+        return getEasyExample(sudokuToSolve);
+//        return getEasyExampleSecond(sudokuToSolve);
       case MIDDLE:
       case HARD:
       default:
-        System.out.println("Sudoku to solve:");
-        this.sudokuToSolve = getEasyExample(sudokuToSolve);
-        Main.printSudoku(sudokuToSolve);
-//        this.sudokuToSolve = getEasyExampleSecond(sudokuToSolve);
-        solveSudokuTrivial(this.sudokuToSolve);
-        //checkForValueInColumn(new Point(1,5), 1);
-//        System.out.println(possibleValues.entrySet());
-//        System.out.println(possibleValues.size());
         return sudokuToSolve;
     }
   }
@@ -68,51 +72,33 @@ public class Sudoku {
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization
   //-------------------------------------------------------------------------------------------------------------------------------------------- region Methods
 
-//  private void solveSudokuSecond(int[][] sudokuToSolve) {
-//    deleteAllInitiallyKnownValues(sudokuToSolve);
-//    int counter = 0;
-//    while(possibleValues.size() > 0 || counter > 50) {
-//      setKnownValues(sudokuToSolve);
-//    }
-//  }
+  private void solveSudokuTrivialArray(int[][] sudokuToSolve) {
 
-  private void solveSudokuTrivial(int[][] sudokuToSolve) {
-
-    // delete all exiting numbers in possibleValues
+    // delete all exiting values in the map possibleValues
     deleteAllInitiallyKnownValues(sudokuToSolve);    // TODO: 04/02/19 works
 
-    long start = System.currentTimeMillis();
-    int counter = 0;
+    long start   = System.currentTimeMillis();
+    int  counter = 0;
 
-    while(possibleValues.size() > 0 && counter < 100){
+    while(possibleValues.size() > 0 && counter < MAX_NUMBER_OF_ATEMPTS){
       setKnownValues(sudokuToSolve);
       counter ++;
     }
 
-    if (counter >= 50) {
+    if (counter >= MAX_NUMBER_OF_ATEMPTS) {
       System.out.println("Sorry - could not solve Sudoku");
+      printPossibleValues(possibleValues);
     }
     else {
       long timespent = (System.currentTimeMillis() - start);
       System.out.println("Spent " +  timespent + " milliseconds to solve");
 
       System.out.println("My Solution");
-      Main.printSudoku(this.sudokuToSolve);
     }
+    Main.printSudoku(this.sudokuToSolve);
   }
 
-  private void checkForValueInColumn(Point coordinate, int value) {
-    int column = (int) coordinate.getY();
-    for (int y = 0; y < DIMENSION; y++) {
-      if (sudokuToSolve[y][column] == value) {
-        System.out.println("Found value + " + value + "in column: " + column);
-        deleteValueInColumn(coordinate, value);
-      }
-      //possibleValues.re(new Point(x, column))
-    }
-  }
-
-  private void deleteAllInitiallyKnownValues(int[][] sudokuToSolve) {
+  private void deleteAllInitiallyKnownValues(@NotNull int[][] sudokuToSolve) {
     // get all keys, for that the value is not 0!
     // delete them in the map.
     for (int y = 0; y < sudokuToSolve.length; y++) {
@@ -130,12 +116,17 @@ public class Sudoku {
 
   private void removeValue(Point coordinate, int value) {
     possibleValues.remove(coordinate);
-    deleteValueInColumn(coordinate, value);
-    deleteValueInRow(coordinate, value);
+    deleteValueInColumn((int) coordinate.getX(), value);
+    deleteValueInRow(   (int) coordinate.getY(), value);
     deleteValueInSquare(coordinate, value);
   }
 
-  private void setKnownValues(Map<Point, Set<Integer>> possibleValues) {
+  /**
+   * This method is only called, iif the algorithm iterates over the map {@param possibleValues} rather than the array {@code sudokuToSolve}.
+   *
+   * @param possibleValues a copy of the map that is iterated over
+   */
+  private void setKnownValues(@NotNull Map<Point, Set<Integer>> possibleValues) {
     for (Map.Entry<Point, Set<Integer>> possibleValue : possibleValues.entrySet()) {
       Point coordinate = possibleValue.getKey();
       if (possibleValues.get(coordinate).size() == 1) {
@@ -149,7 +140,7 @@ public class Sudoku {
 
 
 
-  private void setKnownValues(int[][] sudokuToSolve) {
+  private void setKnownValues(@NotNull int[][] sudokuToSolve) {
     for (int y = 0; y < sudokuToSolve.length; y++) {
       for (int x = 0; x < sudokuToSolve[0].length; x++) {
         Point coordinate = new Point(x, y);
@@ -158,33 +149,127 @@ public class Sudoku {
           sudokuToSolve[x][y] = value;
           removeValue(coordinate, value);
         }
+        else {
+          // try to find out the fields that contain only two values.   // TODO: 2019-02-16 done
+          // get all all values with 2 digits                           // TODO: 2019-02-16 done
+          // get duplicates                                             // TODO: 2019-02-16 done
+          // determine whether they are in one row || column || square
+          // delete the values in the others.
+
+          Map<Point, Set<Integer>> twoDigitFields = possibleValues.entrySet().stream().filter(entry -> entry.getValue().size() == 2)
+                                                                                      .collect(Collectors.toConcurrentMap(Map.Entry::getKey, Map.Entry::getValue));
+          for (Map.Entry<Point, Set<Integer>> twoDigitField : twoDigitFields.entrySet()) {
+            //          for (Map.Entry<Point, Set<Integer>> twoDigitField : twoDigitFields.entrySet()) {
+            Set<Integer> values = twoDigitField.getValue();
+            for (Map.Entry<Point, Set<Integer>> possibleDuplicate : twoDigitFields.entrySet()) {
+              if (!twoDigitField.equals(possibleDuplicate) && values.equals(possibleDuplicate.getValue())) {
+                int[] twoDigitFieldSquare = identifySquare(twoDigitField.getKey());
+                // determine whether they are in one column
+                if (twoDigitField.getKey().getX() == possibleDuplicate.getKey().getX()) {
+                  System.out.println("Found in one column.");
+                  System.out.println((int) twoDigitField.getKey().getX() + ", " + (int) twoDigitField.getKey().getY() + " : " + (int) possibleDuplicate.getKey().getX() + ", " + (int) possibleDuplicate.getKey().getY());
+//                  int[] values = twoDigitField.getValue();
+                  deleteValuesInColumn((int) twoDigitField.getKey().getX(), twoDigitField.getValue(), (int) twoDigitField.getKey().getY(), (int) possibleDuplicate.getKey().getY());
+                  twoDigitFields.remove(twoDigitField.getKey());
+                  twoDigitFields.remove(possibleDuplicate.getKey());
+                }
+              // determine whether they are in one row
+                else if (!twoDigitField.equals(possibleDuplicate) && twoDigitField.getKey().getY() == possibleDuplicate.getKey().getY()) {
+                  System.out.println("Found in one row.");
+                  System.out.println((int) twoDigitField.getKey().getX() + ", " + (int) twoDigitField.getKey().getY() + " : " + (int) possibleDuplicate.getKey().getX() + ", " + (int) possibleDuplicate.getKey().getY());
+                  deleteValuesInRow((int) twoDigitField.getKey().getY(), twoDigitField.getValue(), (int) twoDigitField.getKey().getX(), (int) possibleDuplicate.getKey().getX());
+                  twoDigitFields.remove(twoDigitField.getKey());
+                  twoDigitFields.remove(possibleDuplicate.getKey());
+                }
+              // determine whether they are in one square
+                else if (Arrays.equals(twoDigitFieldSquare, identifySquare(possibleDuplicate.getKey()))) {
+                  System.out.println("Found in a square");
+                  System.out.println((int) twoDigitField.getKey().getX() + ", " + (int) twoDigitField.getKey().getY() + " : " + (int) possibleDuplicate.getKey().getX() + ", " + (int) possibleDuplicate.getKey().getY());
+                  deleteValuesInSquare(twoDigitFieldSquare, twoDigitField.getValue(), twoDigitField.getKey(), possibleDuplicate.getKey());
+                  twoDigitFields.remove(twoDigitField.getKey());
+                  twoDigitFields.remove(possibleDuplicate.getKey());
+                }
+
+//                System.out.println("Duplicate found");
+//                System.out.println(values);
+//                System.out.println(possibleDuplicate.getValue());
+              }
+            }
+
+          }
+
+//          printPossibleValues(twoDigitFields);
+        }
       }
     }
   }
 
-  private void deleteValueInColumn(Point coordinate , int value) {
-    int column = (int) coordinate.getY();
-    for (int x = 0; x < DIMENSION; x++) {
-      possibleValues.computeIfPresent(new Point(x, column), (k, v) -> {possibleValues.get(k).remove(value); return v;});
-    }
-  }
-
-  private void deleteValueInRow(Point coordinate, int value) {
-    int row = (int) coordinate.getX();
+  private void deleteValueInColumn(int column, int value) {
     for (int y = 0; y < DIMENSION; y++) {
-      possibleValues.computeIfPresent(new Point(row, y), (k,v) -> {possibleValues.get(k).remove(value); return v;});
+      possibleValues.computeIfPresent(new Point(column, y), (k, v) -> {possibleValues.get(k).remove(value); return v;});
     }
   }
 
-  private void deleteValueInSquare(Point coordinate, int value) {
-  // identify square
-    int squareX = (int) coordinate.getX() / FACTOR;
-    int squareY = (int) coordinate.getY() / FACTOR;
-    for (int y = squareY * FACTOR; y < squareY * FACTOR + 3; y++) {
-      for (int x = squareX * FACTOR; x < squareX * FACTOR + 3; x++) {
+  private void deleteValuesInColumn(int column, Set<Integer> values, int... exclusion) {
+    for (int y = 0; y < DIMENSION; y++) {
+      int finalY = y;
+      if(Arrays.stream(exclusion).noneMatch(e -> e == finalY)) {
+        possibleValues.computeIfPresent(new Point(column, y), (k, v) -> {
+          possibleValues.get(k).removeAll(values);
+          return v;
+        });
+      }
+    }
+  }
+
+  private void deleteValueInRow(int row, int value) {
+    for (int x = 0; x < DIMENSION; x++) {
+      possibleValues.computeIfPresent(new Point(x, row), (k,v) -> {possibleValues.get(k).remove(value); return v;});
+    }
+  }
+
+  private void deleteValuesInRow(int row, Set<Integer> values, int... exclusion) {
+    for (int x = 0; x < DIMENSION; x++) {
+      int finalX = x;
+      if(Arrays.stream(exclusion).noneMatch(e -> e == finalX)) {
+        possibleValues.computeIfPresent(new Point(x, row), (k, v) -> {
+          possibleValues.get(k).removeAll(values);
+          return v;
+        });
+      }
+    }
+  }
+
+  private void deleteValueInSquare(@NotNull Point coordinate, int value) {
+    int[] square = identifySquare(coordinate);
+    for (int y = square[1] * FACTOR; y < square[1] * FACTOR + 3; y++) {
+      for (int x = square[0] * FACTOR; x < square[0] * FACTOR + 3; x++) {
         possibleValues.computeIfPresent(new Point(x, y), (k, v) -> {possibleValues.get(k).remove(value); return v;});
       }
     }
+  }
+
+  private void deleteValuesInSquare(int[] square, Set<Integer> values, Point... exclusions) {
+    for (int y = square[1] * FACTOR; y < square[1] * FACTOR + 3; y++) {
+      for (int x = square[0] * FACTOR; x < square[0] * FACTOR + 3; x++) {
+        int finalX = x;
+        int finalY = y;
+        if(Arrays.stream(exclusions).noneMatch(a -> a.equals(new Point(finalX, finalY)))) {
+          possibleValues.computeIfPresent(new Point(x, y), (k, v) -> {
+            possibleValues.get(k).removeAll(values);
+            return v;
+          });
+        }
+      }
+    }
+  }
+
+  private int[] identifySquare(@NotNull Point coordinate) {
+    // identify square
+    int[] square = new int[2];
+    square[0] = (int) coordinate.getX() / FACTOR;
+    square[1] = (int) coordinate.getY() / FACTOR;
+    return square;
   }
 
   private void printPossibleValues(Map<Point, Set<Integer>> possibleValues) {

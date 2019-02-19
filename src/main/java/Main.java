@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
  * Time: 11:16
  * <p>
  *
- * Copyright LucaNet AG
+ * Copyright Fari
  */
 public class Main {
   //------------------------------------------------------------------------------------------------------------------------------------------ region Variables
@@ -59,8 +59,13 @@ public class Main {
 //    printSudoku(solution);
 
 
-    Sudoku.generateSudoko(DIMENSION, Sudoku.Level.EASY);
-   // printSudoku(Sudoku.getEasySolution());
+    solution = Sudoku.generateSudoku(DIMENSION, Sudoku.Level.EASY);
+    System.out.println("Sudoku to solve");
+    printSudoku(solution);
+    Sudoku.solveSudoku(solution);
+
+//    Sudoku solution
+//    printSudoku(Sudoku.getEasySolution());
   }
 
   //---------------------------------------------------------------------------------------------------------------------------------- endregion Initialization  
